@@ -67,13 +67,23 @@ public class Scoop : MonoBehaviour
 {
     public string Flavor = "Vanilla";
     private bool isFalling = true;
+    public bool isScooped = false;
+    public bool isTopScoop = false;    
+    
     private void Update() {
-
+        
         // Fall over time
         if (isFalling) {
             transform.position -= Vector3.up * Time.deltaTime;
         }
         
+        // Experiment with Joint torque, rather than angular velocity.  
+        // Torque seems to be more sensitive as the number of joints increases
+        if (GetComponent<Rigidbody2D>().angularVelocity > 200) {
+            if (GetComponent<HingeJoint2D>() != null) {
+                GetComponent<HingeJoint2D>().breakForce = 0;
+            }            
+        }
     }
 
     public void SetFlavor(int scoopType) {
@@ -87,22 +97,49 @@ public class Scoop : MonoBehaviour
         }
     }
 
+    private void OnJointBreak2D(Joint2D brokenJoint) {
+        Debug.Log("A joint has been broken");
+        Debug.Log("Broken Joint reaction force: " + brokenJoint.reactionForce);
+        Debug.Log("Broken Joint torque force: " + brokenJoint.reactionTorque);
+
+        GameObject.Find("Controller").GetComponent<Controller>().BreakJoint(this);
+    }
+
     private void OnTriggerEnter2D(Collider2D col) {
         
         if (col.tag == "Player") {            
-            isFalling = false;
-            col.GetComponent<Controller>().Attach(this);
+            if (GameManager.GetInstance().scoopCounter == 0) {                    
+                isFalling = false;
+                isScooped = true;
+                col.GetComponent<Controller>().Attach(this);
+            }
+        }
+
+        
+        if (col.tag == "Scoop") {
+            
+            if (col.GetComponent<Scoop>().isTopScoop){
+                if (col.GetComponent<Scoop>().isScooped && !isScooped) {
+                    isScooped = true;
+                    isFalling = false;
+                    GameObject.Find("Controller").GetComponent<Controller>().Attach(this);
+                }    
+            } else {
+                // break the chain at that point
+            }
+
+            
         }
 
         if (col.tag == "Floor") {
             // Don't count fish as a missed scoop.
             if (Flavor != "FishFace") {
                 // Change to Singleton format
-                GameObject.Find("GameManager").GetComponent<GameManager>().missedScoops++;
+                GameManager.GetInstance().missedScoops++;
             }            
             // Drop a splat at the position of contact.            
             Destroy(gameObject);
         }
-    }
+    }    
 
 }

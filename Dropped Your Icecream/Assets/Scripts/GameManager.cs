@@ -27,6 +27,12 @@ public class GameManager : MonoBehaviour
     -- Multiplayer face-off: Stack Attack! (Snack Attack!)
     */
 
+    // Singleton Format
+    private static GameManager instance;
+    public static GameManager GetInstance() { 
+        return instance;
+    }
+
     // Game Variables
     private int difficulty;
     public Controller controller; 
@@ -54,27 +60,8 @@ public class GameManager : MonoBehaviour
     public Text endCaughtText;
     
 
-    public void NewGame(int difficulty) {
-
-        this.difficulty = difficulty;
-        // Change scoop patters, time, difficulty, etc. based on level index        
-        /// Example: Spawn Time of Scoops.  Gradually increases spawn speed, with a limiter of scoops per second.         
-        scoopSpawnTime = 3.0f - (difficulty * 0.25f);
-        if (scoopSpawnTime < 0.25f) {
-            scoopSpawnTime = 0.25f;
-        } 
-
-        activeScoops = new List<GameObject>();
-        lastScoop = false;
-        roundEnd = false;
-        score = 0;
-        scoopCounter = 0;
-        missedScoops = 0;
-        roundTimer = RoundDuration;        
-        gameInfoPanel.SetActive(true);
-        endScreenPanel.SetActive(false);
-        controller.ClearCone();
-        StartCoroutine(SpawnScoop());
+    private void Awake() {
+        instance = this;
     }
 
     private void Start() {        
@@ -110,6 +97,29 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void NewGame(int difficulty) {
+
+        this.difficulty = difficulty;
+        // Change scoop patters, time, difficulty, etc. based on level index        
+        /// Example: Spawn Time of Scoops.  Gradually increases spawn speed, with a limiter of scoops per second.         
+        scoopSpawnTime = 3.0f - (difficulty * 0.25f);
+        if (scoopSpawnTime < 0.25f) {
+            scoopSpawnTime = 0.25f;
+        } 
+
+        activeScoops = new List<GameObject>();
+        lastScoop = false;
+        roundEnd = false;
+        score = 0;
+        scoopCounter = 0;
+        missedScoops = 0;
+        roundTimer = RoundDuration;        
+        gameInfoPanel.SetActive(true);
+        endScreenPanel.SetActive(false);
+        controller.ClearCone(true);
+        StartCoroutine(SpawnScoop());
+    }
+
     private IEnumerator SpawnScoop() {        
 
         while (roundTimer > 0) {
@@ -130,6 +140,8 @@ public class GameManager : MonoBehaviour
                     
         }        
     }
+
+
 
     private IEnumerator LastScoopNotification() {
         lastScoop = true;
