@@ -35,6 +35,14 @@ public class Controller : MonoBehaviour
             rigid2D.velocity = Vector3.zero;
         }
 
+        if (transform.position.x > 5.5f) {
+            transform.position = new Vector3(5.5f, transform.position.y, 0);
+        } 
+
+        if (transform.position.x < -5.5f) {
+            transform.position = new Vector3(-5.5f, transform.position.y, 0);
+        }
+
         // Dynamically adjust camera height 
         if (GameManager.GetInstance().scoopCounter > 5) {
             Vector3 newPosition = new Vector3(0, 1, -10) + new Vector3(0, (1 + (GameManager.GetInstance().scoopCounter - 5)) * 0.5f, 0);

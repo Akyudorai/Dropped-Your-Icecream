@@ -111,7 +111,12 @@ public class Scoop : MonoBehaviour
             if (GameManager.GetInstance().scoopCounter == 0) {                    
                 isFalling = false;
                 isScooped = true;
+                
+                GameObject display = Instantiate(Resources.Load<GameObject>("Prefabs/CollectionNotification"), transform.position, Quaternion.identity);
+                Flavors.ScoreValues.TryGetValue(Flavor, out int scoreValue);
+                display.GetComponent<CollectNotif>().Display.text = Flavor + "\n" + scoreValue + " pts";
                 col.GetComponent<Controller>().Attach(this);
+                
             }
         }
 
@@ -122,6 +127,11 @@ public class Scoop : MonoBehaviour
                 if (col.GetComponent<Scoop>().isScooped && !isScooped) {
                     isScooped = true;
                     isFalling = false;
+
+                    GameObject display = Instantiate(Resources.Load<GameObject>("Prefabs/CollectionNotification"), transform.position, Quaternion.identity);
+                    Flavors.ScoreValues.TryGetValue(Flavor, out int scoreValue);
+                    display.GetComponent<CollectNotif>().Display.text = Flavor + "\n" + scoreValue + " pts";
+
                     GameObject.Find("Controller").GetComponent<Controller>().Attach(this);
                 }    
             } else {

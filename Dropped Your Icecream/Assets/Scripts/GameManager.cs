@@ -159,6 +159,7 @@ public class GameManager : MonoBehaviour
     }
 
     private void RoundEnd() {
+        roundEnd = true;
         gameInfoPanel.SetActive(false);
         endScreenPanel.SetActive(true);
         endScoreText.text = "Final Score: " + score;
